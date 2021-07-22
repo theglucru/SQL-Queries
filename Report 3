@@ -1,0 +1,49 @@
+SELECT *
+FROM dsv1069.users
+
+SELECT
+  new.day,
+  new.new_users_added,
+  deleted.deleted_users,
+  merged.merged_users
+FROM
+  (SELECT 
+    DATE(created_at) AS day,
+    COUNT(*) AS new_users_added
+  FROM 
+    dsv1069.users
+  GROUP BY DATE(created_at)
+  ) AS new
+LEFT JOIN
+  (SELECT
+    DATE(deleted_at) AS day,
+    COUNT(*) AS deleted_users
+    FROM dsv1069.users
+    WHERE deleted_at IS NOT NULL
+    GROUP BY DATE(deleted_at)
+  ) as deleted
+ON new.day = deleted.day
+LEFT JOIN
+  (SELECT
+      DATE(merged_at) AS day,
+      COUNT(*) AS merged_users
+      FROM dsv1069.users
+      WHERE id <> parent_user_id
+        AND parent_user_id IS NOT NULL
+      GROUP BY DATE(merged_at)
+    ) AS merged
+ON new.day = merged.day
+
+SELECT
+  DATE(created_at) AS day,
+  COUNT (*) AS users
+FROM dsv1069.users
+WHERE deleted_at IS NULL
+  AND (id <> parent_user_id OR parent_user_id IS NULL)
+GROUP BY
+  DATE(created_at)
+  
+  SELECT DATE(deleted_at) AS day,
+       COUNT(*) AS users
+FROM dsv1069.users
+GROUP BY DATE(deleted_at)
