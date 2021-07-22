@@ -1,0 +1,46 @@
+--Ex 1
+SELECT 
+  event_time,
+  user_id,
+  item_id,
+  ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_time DESC)
+FROM dsv1069.view_item_events
+
+
+SELECT *
+FROM dsv1069.users
+JOIN
+  (
+  SELECT 
+    event_time,
+    user_id,
+    item_id,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_time DESC) AS view_number
+  FROM dsv1069.view_item_events
+  ) recent_views
+ON users.id = recent_views.user_id
+JOIN dsv1069.items
+  ON recent_views.item_id = items.id
+  
+  
+  
+  SELECT
+  items.id AS itemID,
+  users.id AS userID,
+  items.name AS item_name,
+  items.category AS items_category,
+  email_address
+FROM dsv1069.users
+JOIN
+  (
+  SELECT 
+    event_time,
+    user_id,
+    item_id,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_time DESC) AS view_number
+  FROM dsv1069.view_item_events
+  ) recent_views
+ON users.id = recent_views.user_id
+JOIN dsv1069.items
+  ON recent_views.item_id = items.id
+WHERE view_number = 1
