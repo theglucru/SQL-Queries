@@ -1,2 +1,2 @@
 # SQL-Queries
-SQL queries I had in Mode
+SQL queries I had in Mode from a Coursera class
